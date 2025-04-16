@@ -21,7 +21,8 @@ class SteamParser:
                     continue
 
                 stickers_parser = StickersParser(skin_item)
-                stickers_parser.parse()
+                await stickers_parser.parse()
+                break
 
 
 

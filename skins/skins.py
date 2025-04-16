@@ -25,7 +25,6 @@ def get_assets(html):
                 for i in range(1, 3):
                     json_items = next(iter(json_items.values()))
 
-
                 return json_items
             else:
                 print("g_rgAssets not found.")
