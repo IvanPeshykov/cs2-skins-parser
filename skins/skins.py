@@ -1,5 +1,6 @@
 import json
 import re
+import logging
 
 def get_all_names():
     with open('data/marketplaceids.json', 'r', encoding="utf8") as f:
@@ -27,5 +28,9 @@ def get_assets(html):
 
                 return json_items
             else:
-                print("g_rgAssets not found.")
+                logging.warning("g_rgAssets not found.")
                 return None
+
+def get_revenue_price(skin_price):
+    # 150% profit for random stickers, 10% for identical stickers
+    return [skin_price + (skin_price * 1.5), skin_price + (skin_price * 0.10)]
