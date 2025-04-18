@@ -3,19 +3,20 @@ import logging
 from parser import Parser
 from data import config
 from stickers import stickers, stickers_db
-import requests
 
 class StickersParser(Parser):
 
-    def __init__(self, skin_item, revenue_price):
+    def __init__(self, proxy_manager, session, skin_item, revenue_price, db):
+        super().__init__(proxy_manager)
         self.skin_item = skin_item
+        self.session = session
         self.stickers = self.find_stickers(skin_item)
         self.revenue_price = revenue_price
-        self.db = stickers_db.StickersDB()
+        self.db = db
 
     @staticmethod
     def is_valid(skin_item):
-        return len(skin_item['descriptions']) >= 7 and StickersParser.find_stickers(skin_item) is not None
+        return len(skin_item['descriptions']) >= 6 and StickersParser.find_stickers(skin_item) is not None
 
     @staticmethod
     def find_stickers(skin_item):
@@ -26,8 +27,8 @@ class StickersParser(Parser):
         return None
 
     async def get_sticker_price(self, url):
-        html = requests.get(url)
-        return self.get_item_price(html.text)
+        html = await self.fetch(url, config.STICKER_SLEEP_TIME)
+        return self.get_item_price(html)
 
     async def parse(self):
         titles = stickers.get_titles(self.stickers)

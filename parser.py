@@ -7,6 +7,11 @@ import logging
 
 class Parser(ABC):
 
+    def __init__(self, proxy_manager):
+        self.session = None
+        self.proxy_manager = proxy_manager
+
+
     @abstractmethod
     def parse(self):
         pass
@@ -27,3 +32,12 @@ class Parser(ABC):
         else:
             logging.warning("Iterm price not found." + html)
             return -1
+
+    async def fetch(self, url, cooldown):
+        proxy = await self.proxy_manager.get_proxy(cooldown)
+        async with self.session.get(url, proxy=proxy) as response:
+            if response.status == 200:
+                return await response.text()
+            else:
+                logging.error(f"Failed to fetch {url}: {response.status}")
+                return None
