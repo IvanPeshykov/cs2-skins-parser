@@ -12,8 +12,7 @@ class StickersDB:
     def create_table(self):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS stickers (
-                id INTEGER PRIMARY KEY,
-                name TEXT,
+                name TEXT PRIMARY KEY,
                 price REAL,
                 last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -48,7 +47,10 @@ class StickersDB:
 
     def add_sticker(self, name, price):
         self.cursor.execute('''
-            INSERT INTO stickers (name, price)
-            VALUES (?, ?)
+            INSERT INTO stickers (name, price, last_updated)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(name) DO UPDATE SET
+                price = excluded.price,
+                last_updated = CURRENT_TIMESTAMP
         ''', (name, price))
         self.conn.commit()

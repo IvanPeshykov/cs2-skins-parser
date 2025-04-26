@@ -1,6 +1,7 @@
 # Helper file to remove unwanted skins from the skins list
 import json
 import logging
+import os.path
 
 #TODO : Remove cheap skins
 
@@ -65,11 +66,19 @@ with open('../data/marketplaceids.json', 'r', encoding="utf8") as f:
 
 initItems = len(names['items'].keys())
 
+unvalid_skins = {}
+
+if os.path.isfile("../data/wrong.txt"):
+    with open("../data/wrong.txt", 'r', encoding='utf-8') as file:
+        for line in file:
+            unvalid_skins[line.strip()] = True
+
 for name in list(names['items'].keys()):
-    if not is_valid(name):
+    if not is_valid(name) or name in unvalid_skins:
         names['items'].pop(name)
 
 with open('../data/marketplaceids.json', 'w', encoding="utf8") as f:
     json.dump(names, f, indent=4)
 
-logging.info("Removed " + str(initItems - len(names['items'].keys())) + " skins from the list")
+
+print("Removed " + str(initItems - len(names['items'].keys())) + " skins from the list")

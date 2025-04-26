@@ -2,7 +2,7 @@ import asyncio
 import logging
 from parser import Parser
 from data import config
-from stickers import stickers, stickers_db
+from stickers import stickers
 
 class StickersParser(Parser):
 
@@ -34,16 +34,18 @@ class StickersParser(Parser):
         titles = stickers.get_titles(self.stickers)
 
         # Check if there are at least 4 stickers for them to be counted as identical
-        is_identical = len(titles) >= 4
+        consistent_stickers = 1
         total_price = 0
+        consistent_price = 0
 
         for i, title in enumerate(titles):
 
             logging.info("Parsing sticker: " + title)
 
             # Check if the sticker is identical
-            if i >= 1 and title[i - 1] != title:
-                is_identical = False
+            if i >= 1 and titles[i - 1] == title:
+                consistent_stickers += 1
+                consistent_price += self.db.get_sticker_price(title)
 
             price = self.db.get_sticker_price(title)
 
@@ -57,8 +59,10 @@ class StickersParser(Parser):
             total_price += price
             await asyncio.sleep(config.STICKER_SLEEP_TIME)
 
-        if total_price > self.revenue_price[0] or total_price > self.revenue_price[1] and is_identical:
-            logging.info("Stickers price: " + str(round(total_price)))
-            return True
+        is_identical = consistent_stickers >= 4
 
-        return False
+        if total_price > self.revenue_price[0] or consistent_price > self.revenue_price[1] and is_identical:
+            logging.info("Stickers price: " + str(round(total_price)))
+            return [True, total_price, is_identical]
+
+        return [False, total_price, is_identical]

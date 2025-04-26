@@ -1,6 +1,7 @@
 import json
 import re
 import logging
+import urllib
 
 def get_all_names():
     with open('data/marketplaceids.json', 'r', encoding="utf8") as f:
@@ -8,8 +9,18 @@ def get_all_names():
         return names['items'].keys()
 
 def get_skin_url(skin_name: str) -> str:
-    url = f"https://steamcommunity.com/market/listings/730/{skin_name:}"
-    return url
+
+    url = "https://steamcommunity.com/market/listings/730/"
+
+    if "|" not in skin_name:
+        parts = skin_name.split(' ', 1)
+        if len(parts) == 2:
+            name = f"{parts[0]} | {parts[1]}"
+    else:
+        # Normalize spacing around "|" to be " | "
+        name = " | ".join(part.strip() for part in skin_name.split('|', 1))
+
+    return url + urllib.parse.quote(skin_name)
 
 def get_assets(html):
             # Regular expression to match the g_rgAssets variable and capture the object content
@@ -24,7 +35,10 @@ def get_assets(html):
                 json_items = json.loads(g_rgAssets_str)
 
                 for i in range(1, 3):
-                    json_items = next(iter(json_items.values()))
+                    try:
+                        json_items = next(iter(json_items.values()))
+                    except:
+                        return -1
 
                 return json_items
             else:

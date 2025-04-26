@@ -1,4 +1,5 @@
 import asyncio
+import misc.telegram_bot as telegram_bot
 
 class ProxyManager:
     def __init__(self, proxies):
