@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import json
 import re
 import logging
+import asyncio
+from misc import telegram_bot
 
 # Base abstract class for parsers
 
@@ -10,6 +12,7 @@ class Parser(ABC):
     def __init__(self, proxy_manager):
         self.session = None
         self.proxy_manager = proxy_manager
+        self.pause = False
 
 
     @abstractmethod
@@ -56,5 +59,10 @@ class Parser(ABC):
             if response.status == 200:
                 return await response.text()
             else:
+                if response.status == 429:
+                    await telegram_bot.send_message(f"Rate limit exceeded! Pausing script for 15 minutes...")
+                    self.pause = True
+                    await asyncio.sleep(900)
+                    self.pause = False
                 logging.error(f"Failed to fetch {url}: {response.status}")
                 return None

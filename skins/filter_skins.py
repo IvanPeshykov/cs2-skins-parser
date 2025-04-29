@@ -1,6 +1,5 @@
 # Helper file to remove unwanted skins from the skins list
 import json
-import logging
 import os.path
 
 #TODO : Remove cheap skins

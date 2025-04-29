@@ -29,6 +29,11 @@ class SteamParser(Parser):
 
                 async def worker():
                     while True:
+
+                        if self.pause:
+                            await asyncio.sleep(1)
+                            continue
+
                         skin = await queue.get()
                         await queue.put(skin)
                         url = skins.get_skin_url(skin)

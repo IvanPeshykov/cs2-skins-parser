@@ -1,5 +1,4 @@
 import os.path
-
 from steam.steam_parser import SteamParser
 import asyncio
 import logging
@@ -50,7 +49,6 @@ def main():
         ]
     )
 
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     logging.info("Starting the parser...")
     proxy_manager = ProxyManager(load_proxies())

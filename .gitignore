@@ -172,3 +172,4 @@ cython_debug/
 
 data/proxies.txt
 data/wrong.txt
+data/config.py
