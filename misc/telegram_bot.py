@@ -1,16 +1,9 @@
 import aiohttp
-from data import config
+import logging
 
-BOT_TOKEN = config.TELEGRAM_BOT_TOKEN
-CHAT_ID = config.CHAT_ID
-API_URL = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
-
-async def send_message(text: str):
-    async with aiohttp.ClientSession() as session:
-        payload = {
-            'chat_id': CHAT_ID,
-            'text': text
-        }
-        async with session.post(API_URL, data=payload) as resp:
-            print(f"Sent message, status: {resp.status}")
-            return await resp.json()
+async def send_message(text):
+    try:
+        async with aiohttp.ClientSession() as session:
+            await session.post("http://telegram_bot:8000/send_message", json={"text": text})
+    except aiohttp.ClientError as e:
+        logging.error(f"Error sending message to Telegram bot: {e}")

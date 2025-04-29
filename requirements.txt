@@ -1,2 +1,5 @@
 aiohttp~=3.11.16
 beautifulsoup4~=4.13.3
+fastapi
+uvicorn
+requests

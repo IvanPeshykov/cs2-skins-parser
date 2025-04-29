@@ -29,7 +29,6 @@ class SteamParser(Parser):
 
                 async def worker():
                     while True:
-
                         if self.pause:
                             await asyncio.sleep(1)
                             continue

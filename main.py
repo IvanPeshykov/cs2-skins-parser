@@ -3,11 +3,35 @@ from steam.steam_parser import SteamParser
 import asyncio
 import logging
 from misc.proxy_manager import ProxyManager
+from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
 
 def load_proxies():
     with open("data/proxies.txt") as f:
         proxies = f.read().splitlines()
         return proxies
+
+proxy_manager = ProxyManager(load_proxies())
+parser = SteamParser(proxy_manager)
+
+async def start_uvicorn():
+    config = uvicorn.Config(app, host="0.0.0.0", port=8001, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
+
+@app.post("/pause")
+async def pause_parser():
+    # Pause the parser
+    parser.pause = True
+    logging.info("Parser paused.")
+
+@app.post("/resume")
+async def resume_parser():
+    # Resume the parser
+    parser.pause = False
+    logging.info("Parser resumed.")
 
 def setup_logging():
     logname = 'parser.log'
@@ -33,7 +57,7 @@ def setup_logging():
         logger.addHandler(file_handler)
         logger.addHandler(console_handler)
 
-def main():
+async def main():
 
     # Clear log
     if os.path.isfile('debug.log'):
@@ -51,10 +75,11 @@ def main():
 
 
     logging.info("Starting the parser...")
-    proxy_manager = ProxyManager(load_proxies())
-    parser = SteamParser(proxy_manager)
     # Start the parsing process
-    asyncio.run(parser.parse())
+    await asyncio.gather(
+        start_uvicorn(),
+        parser.parse()
+    )
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

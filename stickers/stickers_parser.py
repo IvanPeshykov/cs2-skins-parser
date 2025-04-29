@@ -57,7 +57,6 @@ class StickersParser(Parser):
                 consistent_price += price
 
             total_price += price
-            await asyncio.sleep(config.STICKER_SLEEP_TIME)
 
         is_identical = consistent_stickers >= 4
 

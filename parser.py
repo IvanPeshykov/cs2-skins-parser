@@ -59,7 +59,7 @@ class Parser(ABC):
             if response.status == 200:
                 return await response.text()
             else:
-                if response.status == 429:
+                if response.status == 429 and not self.pause:
                     await telegram_bot.send_message(f"Rate limit exceeded! Pausing script for 15 minutes...")
                     self.pause = True
                     await asyncio.sleep(900)
