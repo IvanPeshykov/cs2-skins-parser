@@ -42,11 +42,6 @@ class StickersParser(Parser):
 
             logging.info("Parsing sticker: " + title)
 
-            # Check if the sticker is identical
-            if i >= 1 and titles[i - 1] == title:
-                consistent_stickers += 1
-                consistent_price += self.db.get_sticker_price(title)
-
             price = self.db.get_sticker_price(title)
 
             if price is None:
@@ -55,6 +50,11 @@ class StickersParser(Parser):
 
             if price == -1:
                 continue
+
+            # Check if the sticker is identical
+            if i >= 1 and titles[i - 1] == title:
+                consistent_stickers += 1
+                consistent_price += price
 
             total_price += price
             await asyncio.sleep(config.STICKER_SLEEP_TIME)

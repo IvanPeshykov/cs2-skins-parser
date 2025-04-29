@@ -15,25 +15,30 @@ class SteamParser(Parser):
             super().__init__(proxy_manager)
             self.db = None
             self.lock = asyncio.Lock()
-            self.sent_mesages = set()
-
+            self.sent_messages = set()
 
         async def parse(self):
-            # Limit concurrent requests
-            semaphore = asyncio.Semaphore(config.THREADS_NUM)
-
-            self.db = stickers_db.StickersDB()
-
-            async def parse_limited(skin):
-                async with semaphore:
-                    url = skins.get_skin_url(skin)
-                    return await self.parse_url(url, skin)
+            queue = asyncio.Queue()
 
             async with aiohttp.ClientSession() as session:
                 self.session = session
-                while True:
-                    tasks = [parse_limited(skin) for skin in skins.get_all_names()]
-                    await asyncio.gather(*tasks)
+                self.db = stickers_db.StickersDB()
+
+                for skin in skins.get_all_names():
+                    await queue.put(skin)
+
+                async def worker():
+                    while True:
+                        skin = await queue.get()
+                        await queue.put(skin)
+                        url = skins.get_skin_url(skin)
+                        await self.parse_url(url, skin)
+                        queue.task_done()
+
+                # Start workers
+                workers = [asyncio.create_task(worker()) for _ in range(config.THREADS_NUM)]
+
+                await asyncio.gather(*workers)  # Keep main task alive
 
         async def parse_url(self, url, skin_name):
             try:
@@ -72,11 +77,11 @@ class SteamParser(Parser):
 
                         unique_message = url + skin_price_str + sticker_price_str
 
-                        if unique_message not in self.sent_mesages:
+                        if unique_message not in self.sent_messages:
                             await telegram_bot.send_message("You should buy: " + url + " with index: " + str(i) + ". Skin price - " + skin_price_str + "$"\
                                                         + " and sticker price - " + sticker_price_str + "$. Stickers identical: " + str(is_stickers_identical))
 
-                        self.sent_mesages.add(unique_message)
+                        self.sent_messages.add(unique_message)
 
                 logging.info("Finished parsing URL: " + url)
 
