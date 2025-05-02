@@ -34,7 +34,7 @@ class StickersDB:
         date_format = "%Y-%m-%d %H:%M:%S"
         converted_datetime = datetime.strptime(result[1], date_format)
 
-        if datetime.now() - converted_datetime > timedelta(weeks=1):
+        if datetime.now() - converted_datetime > timedelta(weeks=4):
             return None
 
         return result[0]

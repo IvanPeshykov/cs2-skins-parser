@@ -2,11 +2,9 @@ from abc import ABC, abstractmethod
 import json
 import re
 import logging
-import asyncio
-from misc import telegram_bot
+from data import config
 
 # Base abstract class for parsers
-
 class Parser(ABC):
 
     def __init__(self, proxy_manager):
@@ -54,15 +52,15 @@ class Parser(ABC):
             return -1
 
     async def fetch(self, url, cooldown):
-        proxy = await self.proxy_manager.get_proxy(cooldown)
+        proxy = await self.proxy_manager.get_proxy()
         async with self.session.get(url, proxy=proxy) as response:
             if response.status == 200:
+                await self.proxy_manager.schedule_release(proxy, cooldown)
                 return await response.text()
             else:
-                if response.status == 429 and not self.pause:
-                    await telegram_bot.send_message(f"Rate limit exceeded! Pausing script for 15 minutes...")
-                    self.pause = True
-                    await asyncio.sleep(900)
-                    self.pause = False
-                logging.error(f"Failed to fetch {url}: {response.status}")
+                if response.status == 429:
+                    logging.error("Rate limit exceeded! Scheduling proxy!")
+                    await self.proxy_manager.schedule_release(proxy, config.TOO_MANY_REQUESTS_COOLDOWN)
+                else:
+                    logging.error(f"Failed to fetch {url}: {response.status}")
                 return None

@@ -46,6 +46,7 @@ class StickersParser(Parser):
 
             if price is None:
                 price = await self.get_sticker_price(stickers.get_sticker_url(title))
+                logging.info("Adding sticker: " + title + " to database.")
                 self.db.add_sticker(title, price)
 
             if price == -1:
