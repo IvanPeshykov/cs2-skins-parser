@@ -8,7 +8,6 @@ import uvicorn
 import random
 from misc import telegram_bot
 
-
 app = FastAPI()
 
 def load_proxies():
@@ -61,7 +60,7 @@ def setup_logging():
         logger.addHandler(console_handler)
 
 
-async def random_pauser(parser):
+async def random_pauser():
     while True:
         if parser.pause:
             await asyncio.sleep(1)
@@ -101,7 +100,7 @@ async def main():
     await asyncio.gather(
         start_uvicorn(),
         parser.parse(),
-        random_pauser(parser)
+        random_pauser()
     )
 
 if __name__ == "__main__":

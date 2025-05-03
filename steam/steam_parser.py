@@ -7,7 +7,7 @@ from stickers.stickers_parser import StickersParser
 from misc import telegram_bot
 import logging
 import aiohttp
-
+import random
 
 class SteamParser(Parser):
 
@@ -47,7 +47,7 @@ class SteamParser(Parser):
         async def parse_url(self, url, skin_name):
             try:
                 logging.info("Parsing URL: " + url)
-                html = await self.fetch(url, config.SKIN_SLEEP_TIME)
+                html = await self.fetch(url, random.randint(config.SKIN_SLEEP_TIME_MIN, config.SKIN_SLEEP_TIME_MAX))
                 items = skins.get_assets(html)
 
                 if items == -1:
