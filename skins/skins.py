@@ -2,6 +2,8 @@ import json
 import re
 import logging
 import urllib
+from urllib.parse import unquote
+
 from bs4 import BeautifulSoup
 from steam.steam_currency import SteamCurrencyExchanger
 
@@ -82,3 +84,8 @@ def calculate_profit(skin_price, sticker_price, consistent_price, is_stickers_id
         profit = skin_price + sticker_price / 10
 
     return skin_price - profit
+
+
+def get_action_url(skin_item, skin_id):
+    action_url = skin_item['actions'][0]['link']
+    return unquote(action_url.replace('%assetid%', skin_id))

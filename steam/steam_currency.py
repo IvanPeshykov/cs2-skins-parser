@@ -1,3 +1,5 @@
+import os
+
 import requests
 import json
 import locale
@@ -15,7 +17,7 @@ ISO4217_CurrencyCodes = ['AUD', 'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CLP', 'CNY',
 
 load_dotenv()
 
-currencyJSON = json.load(open("data/currency.json"))
+currencyJSON = json.load(open(os.path.join(os.path.dirname(__file__), "..", "data", "currency.json")))
 
 class SteamCurrencyExchanger(object):
 
@@ -25,7 +27,7 @@ class SteamCurrencyExchanger(object):
         response = requests.get(url)
         currencyJSON = response.json()  # Usd based currency
         currencyJSON["usd"] = {key.upper(): value for key, value in currencyJSON["usd"].items()}
-        with open('data/currency.json', 'w') as f:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "currency.json"), 'w') as f:
             json.dump(currencyJSON, f, indent=4)
 
     def convertPrice(self, inputVal='$9999999,999999 USD', currency_type: str = 'USD') -> float:

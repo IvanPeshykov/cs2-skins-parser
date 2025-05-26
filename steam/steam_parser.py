@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 import traceback
 import requests
 from requests_ip_rotator import ApiGateway
@@ -90,6 +91,7 @@ class SteamParser(Parser,):
                 html = await self.fetch(url, random.randint(config.SKIN_SLEEP_TIME_MIN, config.SKIN_SLEEP_TIME_MAX))
                 items = skins.get_assets(html)
 
+
                 if items == -1:
                     await self.write_wrong_skin(skin_name)
                     return
@@ -99,10 +101,10 @@ class SteamParser(Parser,):
                 if autobuy_price < config.MIN_PRICE or autobuy_price > config.MAX_PRICE or skin_sell_amount <= config.MIN_SELL_AMOUNT:
                     await self.write_wrong_skin(skin_name)
 
-                for i, item in enumerate(items):
+                for i, skin_id in enumerate(items):
 
                     skin_price = skins.get_price(html, i)
-                    skin_item = items[item]
+                    skin_item = items[skin_id]
                     revenue_price = skins.get_revenue_price(skin_price)
 
                     if skin_price  == -1:
@@ -110,6 +112,7 @@ class SteamParser(Parser,):
 
                     if not StickersParser.is_valid(skin_item):
                         continue
+
 
                     stickers_parser = StickersParser(self.proxy_manager, self.session, skin_item, revenue_price, self.db)
                     [should_buy, sticker_price, consistent_price, is_stickers_identical, stickers_text] = await stickers_parser.parse()
@@ -123,9 +126,10 @@ class SteamParser(Parser,):
 
                         unique_message = skins.skin_success_text(skin_url=url, skin_name=skin_name, price=skin_price,
                                                                                     autobuy_price=autobuy_price, profit=profit, steam_profit=fee_profit, stickers_price=sticker_price, stickers_text=stickers_text, position=i)
-
                         if unique_message not in self.sent_messages:
-                            await telegram_bot.send_message(unique_message)
+                            action_url = skins.get_action_url(skin_item, skin_id)
+                            screenshot_url =  await self.generate_screenshot(action_url)
+                            await telegram_bot.send_message(unique_message, image_url=screenshot_url)
 
                         self.sent_messages.add(unique_message)
 
@@ -141,6 +145,16 @@ class SteamParser(Parser,):
                 with open("data/wrong.txt", "a") as f:
                     f.write(f"{skin_name}\n")
 
+        async def generate_screenshot(self, action_url):
+            async with aiohttp.ClientSession() as session:
+                url = 'https://api.swap.gg/v2/screenshot'
+                payload = {"inspectLink": action_url}
 
-
+                async with session.post(url, json=payload) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        screenshot_id = data.get('result').get('imageId')
+                        return f'https://s.swap.gg/{screenshot_id}.jpg'
+                    else:
+                        logging.error(f"Failed to generate screenshot for {action_url}: {response.status}")
 

@@ -25,13 +25,16 @@ async def start_uvicorn():
 async def send_message_req(request: Request):
     data = await request.json()
     message_text = data.get("text", "")
+    image_url = data.get("image_url", None)
 
     logging.info(f"Received message: {message_text}")
+    await send_message(user_chat_id, message_text, image_url)
 
-    await send_message(user_chat_id, message_text)
-
-async def send_message(chat_id, text):
-    await bot.send_message(chat_id=chat_id, text=text, parse_mode='HTML')
+async def send_message(chat_id, text, image_url=None):
+    if image_url:
+        await bot.send_photo(chat_id=chat_id, photo=image_url, caption=text, parse_mode='HTML')
+    else:
+        await bot.send_message(chat_id=chat_id, text=text, parse_mode='HTML')
 
 async def pause_parser(chat_id):
     requests.post("http://steam_parser:8001/pause")
@@ -71,6 +74,7 @@ async def main():
         start_uvicorn(),
         parse_updates()
     )
+
 
 if __name__ == '__main__':
     asyncio.run(main())
