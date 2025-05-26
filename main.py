@@ -1,5 +1,6 @@
 import os.path
 from steam.steam_parser import SteamParser
+from steam.steam_currency import SteamCurrencyExchanger
 import asyncio
 import logging
 from misc.proxy_manager import ProxyManager
@@ -61,13 +62,16 @@ def setup_logging():
 
 
 async def random_pauser():
+
+    first_launch = True
+
     while True:
         if parser.pause:
             await asyncio.sleep(1)
             continue
 
         # Randomly pause the parser for a short time
-        if random.random() < 0.1:  # 10% chance to pause
+        if random.random() < 0.1 and not first_launch:  # 10% chance to pause
             parser.pause = True
             pause_time = random.uniform(5, 1200)  # Random pause time between 5 and 1800 seconds
             await telegram_bot.send_message(f"Parser paused for {pause_time:.2f} seconds.")
@@ -76,6 +80,7 @@ async def random_pauser():
             await telegram_bot.send_message("Parser resumed after random pause.")
             logging.info("Parser resumed after random pause.")
 
+        first_launch = False
         await asyncio.sleep(random.uniform(200, 600))
 
 async def main():
@@ -94,6 +99,7 @@ async def main():
         ]
     )
 
+    SteamCurrencyExchanger.updateCurrencyJSONFile()
 
     logging.info("Starting the parser...")
     # Start the parsing process
@@ -102,6 +108,10 @@ async def main():
         parser.parse(),
         random_pauser()
     )
+
+# TODO:
+# - Different pages check
+# - Change skins (fetch more slate for example)
 
 if __name__ == "__main__":
     asyncio.run(main())

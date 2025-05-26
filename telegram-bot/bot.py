@@ -31,7 +31,7 @@ async def send_message_req(request: Request):
     await send_message(user_chat_id, message_text)
 
 async def send_message(chat_id, text):
-    await bot.send_message(chat_id=chat_id, text=text)
+    await bot.send_message(chat_id=chat_id, text=text, parse_mode='HTML')
 
 async def pause_parser(chat_id):
     requests.post("http://steam_parser:8001/pause")

@@ -4,42 +4,6 @@
             "buff163_goods_id": 35296,
             "youpin_id": 42899
         },
-        "M4A4 | \u9f8d\u738b (Dragon King) (Factory New)": {
-            "buff163_goods_id": 35353,
-            "youpin_id": 1793
-        },
-        "M4A4 | \u9f8d\u738b (Dragon King) (Field-Tested)": {
-            "buff163_goods_id": 35354,
-            "youpin_id": 1478
-        },
-        "M4A4 | \u9f8d\u738b (Dragon King) (Minimal Wear)": {
-            "buff163_goods_id": 35355,
-            "youpin_id": 1587
-        },
-        "P250 | Asiimov (Field-Tested)": {
-            "buff163_goods_id": 35985,
-            "youpin_id": 422
-        },
-        "P250 | Franklin (Factory New)": {
-            "buff163_goods_id": 36017,
-            "youpin_id": 2297
-        },
-        "P250 | Franklin (Field-Tested)": {
-            "buff163_goods_id": 36018,
-            "youpin_id": 5735
-        },
-        "P250 | Franklin (Minimal Wear)": {
-            "buff163_goods_id": 36019,
-            "youpin_id": 2669
-        },
-        "P250 | See Ya Later (Field-Tested)": {
-            "buff163_goods_id": 36078,
-            "youpin_id": 655
-        },
-        "Tec-9 | Sandstorm (Field-Tested)": {
-            "buff163_goods_id": 42034,
-            "youpin_id": 981
-        },
         "USP-S | Cyrex (Factory New)": {
             "buff163_goods_id": 42166,
             "youpin_id": 228
@@ -144,10 +108,6 @@
             "buff163_goods_id": 762123,
             "youpin_id": 46446
         },
-        "P250 | Exchanger (Factory New)": {
-            "buff163_goods_id": 762141,
-            "youpin_id": 46899
-        },
         "USP-S | Check Engine (Minimal Wear)": {
             "buff163_goods_id": 762163,
             "youpin_id": 44315
@@ -155,10 +115,6 @@
         "AWP | Acheron (Minimal Wear)": {
             "buff163_goods_id": 762197,
             "youpin_id": 2272
-        },
-        "P250 | Nevermore (Minimal Wear)": {
-            "buff163_goods_id": 763240,
-            "youpin_id": 221
         },
         "M4A4 | Magnesium (Minimal Wear)": {
             "buff163_goods_id": 763248,
@@ -180,10 +136,6 @@
             "buff163_goods_id": 763294,
             "youpin_id": 2530
         },
-        "P250 | Nevermore (Field-Tested)": {
-            "buff163_goods_id": 763330,
-            "youpin_id": 44216
-        },
         "AWP | Atheris (Minimal Wear)": {
             "buff163_goods_id": 769125,
             "youpin_id": 396
@@ -204,21 +156,9 @@
             "buff163_goods_id": 769178,
             "youpin_id": 414
         },
-        "Tec-9 | Bamboozle (Field-Tested)": {
-            "buff163_goods_id": 769180,
-            "youpin_id": 1394
-        },
         "Desert Eagle | Light Rail (Minimal Wear)": {
             "buff163_goods_id": 769219,
             "youpin_id": 1491
-        },
-        "P250 | X-Ray (Factory New)": {
-            "buff163_goods_id": 773423,
-            "youpin_id": 634
-        },
-        "P250 | Inferno (Field-Tested)": {
-            "buff163_goods_id": 773663,
-            "youpin_id": 36845
         },
         "AK-47 | Rat Rod (Field-Tested)": {
             "buff163_goods_id": 775146,
@@ -259,10 +199,6 @@
         "Glock-18 | Vogue (Minimal Wear)": {
             "buff163_goods_id": 781591,
             "youpin_id": 4250
-        },
-        "Tec-9 | Brother (Minimal Wear)": {
-            "buff163_goods_id": 781605,
-            "youpin_id": 44985
         },
         "AK-47 | Legion of Anubis (Minimal Wear)": {
             "buff163_goods_id": 781656,
@@ -335,10 +271,6 @@
         "AK-47 | Ice Coaled (Field-Tested)": {
             "buff163_goods_id": 900514,
             "youpin_id": 102315
-        },
-        "P250 | Visions (Field-Tested)": {
-            "buff163_goods_id": 900518,
-            "youpin_id": 102349
         },
         "AWP | Chromatic Aberration (Minimal Wear)": {
             "buff163_goods_id": 900525,
@@ -468,17 +400,9 @@
             "buff163_goods_id": 968079,
             "youpin_id": 109698
         },
-        "P250 | Small Game (Minimal Wear)": {
-            "buff163_goods_id": 968095,
-            "youpin_id": 109527
-        },
         "USP-S | Alpine Camo (Minimal Wear)": {
             "buff163_goods_id": 968103,
             "youpin_id": 109641
-        },
-        "P250 | Small Game (Field-Tested)": {
-            "buff163_goods_id": 968104,
-            "youpin_id": 109625
         },
         "AK-47 | Crossfade (Field-Tested)": {
             "buff163_goods_id": 968106,
@@ -491,10 +415,6 @@
         "Desert Eagle | Tilted (Minimal Wear)": {
             "buff163_goods_id": 968135,
             "youpin_id": 109570
-        },
-        "P250 | Epicenter (Field-Tested)": {
-            "buff163_goods_id": 968158,
-            "youpin_id": 109615
         },
         "AK-47 | The Outsiders (Field-Tested)": {
             "buff163_goods_id": 968167,
@@ -556,10 +476,6 @@
             "buff163_goods_id": 1115591,
             "youpin_id": 110826
         },
-        "Tec-9 | Whiteout (Field-Tested)": {
-            "buff163_goods_id": 1115603,
-            "youpin_id": 110739
-        },
         "Desert Eagle | Serpent Strike (Factory New)": {
             "buff163_goods_id": 1115641,
             "youpin_id": 110720
@@ -591,14 +507,6 @@
         "Glock-18 | Ocean Topo (Minimal Wear)": {
             "buff163_goods_id": 1115843,
             "youpin_id": 111145
-        },
-        "Tec-9 | Citric Acid (Factory New)": {
-            "buff163_goods_id": 1115881,
-            "youpin_id": 110854
-        },
-        "P250 | Sedimentary (Factory New)": {
-            "buff163_goods_id": 1115944,
-            "youpin_id": 111050
         },
         "AK-47 | Midnight Laminate (Field-Tested)": {
             "buff163_goods_id": 1115954,

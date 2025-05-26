@@ -53,7 +53,9 @@ def is_valid(skin_name: str) -> bool:
             'SG 553' in skin_name or
             'SCAR-20' in skin_name or
             'SSG 08' in skin_name or
-            'Zeus x27' in skin_name
+            'Zeus x27' in skin_name or
+            'Tec-9' in skin_name or
+            'P250' in skin_name
             or not '(' in skin_name
     ):
         return False

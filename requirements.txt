@@ -3,3 +3,5 @@ beautifulsoup4~=4.13.3
 fastapi
 uvicorn
 requests
+python-dotenv
+requests-ip-rotator

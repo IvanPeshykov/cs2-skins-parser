@@ -2,6 +2,10 @@ import json
 import re
 import logging
 import urllib
+from bs4 import BeautifulSoup
+from steam.steam_currency import SteamCurrencyExchanger
+
+exchanger = SteamCurrencyExchanger()
 
 def get_all_names():
     with open('data/marketplaceids.json', 'r', encoding="utf8") as f:
@@ -9,18 +13,24 @@ def get_all_names():
         return names['items'].keys()
 
 def get_skin_url(skin_name: str) -> str:
-
     url = "https://steamcommunity.com/market/listings/730/"
 
     if "|" not in skin_name:
         parts = skin_name.split(' ', 1)
         if len(parts) == 2:
-            name = f"{parts[0]} | {parts[1]}"
+            skin_name = f"{parts[0]} | {parts[1]}"
     else:
-        # Normalize spacing around "|" to be " | "
-        name = " | ".join(part.strip() for part in skin_name.split('|', 1))
+        skin_name = " | ".join(part.strip() for part in skin_name.split('|', 1))
 
-    return url + urllib.parse.quote(skin_name)
+    # Mark () and | as safe so they don't get percent-encoded
+    return url + urllib.parse.quote(skin_name, safe="|")
+
+
+def get_price(html, index):
+    soup = BeautifulSoup(html, 'html.parser')
+    prices = soup.find_all("span", class_='market_listing_price_with_fee')
+    return exchanger.convertPrice(prices[index].text)
+
 
 def get_assets(html):
             # Regular expression to match the g_rgAssets variable and capture the object content
@@ -46,5 +56,29 @@ def get_assets(html):
                 return None
 
 def get_revenue_price(skin_price):
-    # 150% profit for random stickers, 10% for identical stickers
-    return [skin_price + (skin_price * 1.5), skin_price + (skin_price * 0.10)]
+    # 150% profit for random stickers (and + 10$), 10% for identical stickers
+    return [skin_price * 1.5 + 10, skin_price * 1.1]
+
+def skin_success_text(skin_url, skin_name, autobuy_price, price, profit, steam_profit, stickers_price, stickers_text, position):
+    return f"""
+Item: <a href='{skin_url}'>{skin_name}</a>
+Autobuy: {round(autobuy_price, 2)}$
+Price: {round(price, 2)}$
+No fee profit: {round(profit, 2)}$ ({round((profit / price) * 100)}%)
+Fee profit: {round(steam_profit, 2)}$ ({round((profit / price) * 100)}%)
+
+Stickers:
+{stickers_text}
+Stickers total price - {round(stickers_price, 2)}$
+
+Position: {position}
+"""
+
+
+def calculate_profit(skin_price, sticker_price, consistent_price, is_stickers_identical):
+    if is_stickers_identical:
+        profit = skin_price + consistent_price / 4
+    else:
+        profit = skin_price + sticker_price / 10
+
+    return skin_price - profit

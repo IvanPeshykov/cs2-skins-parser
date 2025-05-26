@@ -1,6 +1,6 @@
-version: "3.8"
 services:
   steam_parser:
+    build: .
     image: ivanpeshykov/steam-parser
     ports:
       - "8001:8001"
@@ -8,9 +8,12 @@ services:
       - telegram_bot
 
   telegram_bot:
+    build: ./telegram-bot
     image: ivanpeshykov/telegram_bot
     ports:
       - "8000:8000"
     environment:
-        - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-        - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}

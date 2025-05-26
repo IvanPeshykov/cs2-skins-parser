@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from parser import Parser
 from data import config
@@ -28,7 +27,7 @@ class StickersParser(Parser):
 
     async def get_sticker_price(self, url):
         html = await self.fetch(url, config.STICKER_SLEEP_TIME)
-        return self.get_item_price(html)
+        return self.get_item_autobuy_price(html)
 
     async def parse(self):
         titles = stickers.get_titles(self.stickers)
@@ -38,10 +37,11 @@ class StickersParser(Parser):
         total_price = 0
         consistent_price = 0
 
+        stickers_text = ""
+
         for i, title in enumerate(titles):
 
             logging.info("Parsing sticker: " + title)
-
             price = self.db.get_sticker_price(title)
 
             if price is None:
@@ -51,6 +51,8 @@ class StickersParser(Parser):
 
             if price == -1:
                 continue
+
+            stickers_text += str(i + 1) + ". "  + title + " - " + str(round(price, 2)) + "$\n"
 
             # Check if the sticker is identical
             if i >= 1 and titles[i - 1] == title:
@@ -62,7 +64,6 @@ class StickersParser(Parser):
         is_identical = consistent_stickers >= 4
 
         if total_price > self.revenue_price[0] or consistent_price > self.revenue_price[1] and is_identical:
-            logging.info("Stickers price: " + str(round(total_price)))
-            return [True, total_price, is_identical]
+            return [True, total_price, consistent_price, is_identical, stickers_text]
 
-        return [False, total_price, is_identical]
+        return [False, total_price, consistent_price, is_identical, stickers_text]
