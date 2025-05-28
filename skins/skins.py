@@ -28,10 +28,15 @@ def get_skin_url(skin_name: str) -> str:
     return url + urllib.parse.quote(skin_name, safe="|")
 
 
-def get_price(html, index):
+def get_price(html, index, autobuy_price):
     soup = BeautifulSoup(html, 'html.parser')
     prices = soup.find_all("span", class_='market_listing_price_with_fee')
-    return exchanger.convertPrice(prices[index].text)
+    skin_price = exchanger.convertPrice(prices[index].text, autobuy_price)
+
+    if skin_price == -1:
+        return skin_price
+
+    return skin_price
 
 
 def get_assets(html):
@@ -67,7 +72,7 @@ Item: <a href='{skin_url}'>{skin_name}</a>
 Autobuy: {round(autobuy_price, 2)}$
 Price: {round(price, 2)}$
 No fee profit: {round(profit, 2)}$ ({round((profit / price) * 100)}%)
-Fee profit: {round(steam_profit, 2)}$ ({round((profit / price) * 100)}%)
+Fee profit: {round(steam_profit, 2)}$ ({round((steam_profit / price) * 100)}%)
 
 Stickers:
 {stickers_text}
@@ -83,7 +88,7 @@ def calculate_profit(skin_price, sticker_price, consistent_price, is_stickers_id
     else:
         profit = skin_price + sticker_price / 10
 
-    return skin_price - profit
+    return abs(skin_price - profit)
 
 
 def get_action_url(skin_item, skin_id):

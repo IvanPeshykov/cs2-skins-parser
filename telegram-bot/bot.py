@@ -1,4 +1,5 @@
 import asyncio
+import aiohttp
 import requests
 from telegram import Bot
 from fastapi import FastAPI, Request
@@ -6,6 +7,8 @@ import logging
 import os
 from dotenv import load_dotenv
 import uvicorn
+from io import BytesIO
+
 
 
 load_dotenv()
@@ -24,16 +27,26 @@ async def start_uvicorn():
 @app.post("/send_message")
 async def send_message_req(request: Request):
     data = await request.json()
+
     message_text = data.get("text", "")
     image_url = data.get("image_url", None)
+
+    print(image_url)
 
     logging.info(f"Received message: {message_text}")
     await send_message(user_chat_id, message_text, image_url)
 
 async def send_message(chat_id, text, image_url=None):
-    if image_url:
-        await bot.send_photo(chat_id=chat_id, photo=image_url, caption=text, parse_mode='HTML')
-    else:
+    try:
+        if image_url:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(image_url) as response:
+                    response.raise_for_status()
+                    image_data = BytesIO(await response.read())
+                    await bot.send_photo(chat_id=chat_id, photo=image_data, caption=text, parse_mode='HTML')
+        else:
+            await bot.send_message(chat_id=chat_id, text=text, parse_mode='HTML')
+    except Exception as e:
         await bot.send_message(chat_id=chat_id, text=text, parse_mode='HTML')
 
 async def pause_parser(chat_id):
@@ -78,4 +91,7 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
+
+
 

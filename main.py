@@ -110,8 +110,9 @@ async def main():
     )
 
 # TODO:
+
+# Add fast buy button
 # - Different pages check
-# - Change skins (fetch more slate for example)
 
 if __name__ == "__main__":
     asyncio.run(main())

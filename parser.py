@@ -8,12 +8,9 @@ from data import config
 # Base abstract class for parsers
 class Parser(ABC):
 
-    def __init__(self, proxy_manager, gateway = None):
+    def __init__(self, proxy_manager):
         self.session = None
         self.proxy_manager = proxy_manager
-        self.gateway = gateway
-        if self.gateway:
-            self.gateway.start()
         self.pause = False
 
     @abstractmethod
@@ -72,20 +69,18 @@ class Parser(ABC):
                     await self.proxy_manager.schedule_release(proxy, config.TOO_MANY_REQUESTS_COOLDOWN)
                     raise Exception("Rate limit exceeded! Scheduling proxy " + proxy + "!")
                 else:
+                    await self.proxy_manager.schedule_release(proxy, 1)
                     logging.error(f"Failed to fetch {url}: {response.status}")
                 return None
 
     async def fetch_no_proxy(self, url):
-
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, self.session.mount, url, self.gateway)
-        response = await loop.run_in_executor(None, self.session.get, url)
-
-        if response.status_code == 200:
-            return response.text
-        else:
-            if response.status_code == 429:
-                raise Exception("Rate limit exceeded!")
+        async with self.session.get(url) as response:
+            if response.status == 200:
+                return await response.text()
             else:
-                raise Exception(f"Failed to fetch {url}: {response.status_code}")
+                if response.status == 429:
+                    raise Exception("Rate limit exceeded!")
+                else:
+                    logging.error(f"Failed to fetch {url}: {response.status}")
+                return None
 

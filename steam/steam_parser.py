@@ -1,9 +1,5 @@
 import asyncio
-import os
-import sys
 import traceback
-import requests
-from requests_ip_rotator import ApiGateway
 from parser import Parser
 from skins import skins
 from data import config
@@ -21,8 +17,7 @@ load_dotenv()
 class SteamParser(Parser,):
 
         def __init__(self, proxy_manager):
-            super().__init__(proxy_manager, gateway=ApiGateway("https://steamcommunity.com/market/listings/730/",
-                                  access_key_id=os.getenv('AWS_ACCESS_KEY'), access_key_secret=os.getenv('AWS_SECRET_KEY'), regions=['eu-west-1']))
+            super().__init__(proxy_manager)
             self.db = None
             self.lock = asyncio.Lock()
             self.sent_messages = set()
@@ -30,12 +25,6 @@ class SteamParser(Parser,):
         async def parse(self):
             self.db = stickers_db.StickersDB()
 
-            if config.USE_PROXY:
-                await self.parse_proxies()
-            else:
-                await self.parse_no_proxies()
-
-        async def parse_proxies(self):
             queue = asyncio.Queue()
 
             async with aiohttp.ClientSession() as session:
@@ -61,37 +50,13 @@ class SteamParser(Parser,):
 
                 await asyncio.gather(*workers)  # Keep main task alive
 
-        async def parse_no_proxies(self):
 
-            queue = asyncio.Queue()
-            self.session = requests.Session()
-
-            for skin in skins.get_all_names():
-                await queue.put(skin)
-
-            async def worker():
-                while True:
-                    if self.pause:
-                        await asyncio.sleep(1)
-                        continue
-
-                    skin = await queue.get()
-                    await queue.put(skin)
-                    url = skins.get_skin_url(skin)
-                    await self.parse_url(url, skin)
-                    queue.task_done()
-                    await asyncio.sleep(5000)
-
-            workers = [asyncio.create_task(worker()) for _ in range(config.THREADS_NUM)]
-            await asyncio.gather(*workers)  # Keep main task alive
 
         async def parse_url(self, url, skin_name):
             try:
                 logging.info("Parsing URL: " + url)
                 html = await self.fetch(url, random.randint(config.SKIN_SLEEP_TIME_MIN, config.SKIN_SLEEP_TIME_MAX))
                 items = skins.get_assets(html)
-
-
                 if items == -1:
                     await self.write_wrong_skin(skin_name)
                     return
@@ -103,7 +68,7 @@ class SteamParser(Parser,):
 
                 for i, skin_id in enumerate(items):
 
-                    skin_price = skins.get_price(html, i)
+                    skin_price = skins.get_price(html, i, autobuy_price)
                     skin_item = items[skin_id]
                     revenue_price = skins.get_revenue_price(skin_price)
 
@@ -122,11 +87,12 @@ class SteamParser(Parser,):
                         profit = skins.calculate_profit(skin_price, sticker_price, consistent_price, is_stickers_identical)
 
                         # Fee percentage in steam is 15%
-                        fee_profit = profit * 0.85
+                        fee_profit = profit - abs(profit * 0.15)
 
                         unique_message = skins.skin_success_text(skin_url=url, skin_name=skin_name, price=skin_price,
                                                                                     autobuy_price=autobuy_price, profit=profit, steam_profit=fee_profit, stickers_price=sticker_price, stickers_text=stickers_text, position=i)
                         if unique_message not in self.sent_messages:
+                            logging.info("Found skin " + skin_name + " with price " + str(skin_price) + "$")
                             action_url = skins.get_action_url(skin_item, skin_id)
                             screenshot_url =  await self.generate_screenshot(action_url)
                             await telegram_bot.send_message(unique_message, image_url=screenshot_url)
@@ -146,15 +112,28 @@ class SteamParser(Parser,):
                     f.write(f"{skin_name}\n")
 
         async def generate_screenshot(self, action_url):
-            async with aiohttp.ClientSession() as session:
-                url = 'https://api.swap.gg/v2/screenshot'
-                payload = {"inspectLink": action_url}
+            url = 'https://api.swap.gg/v2/screenshot'
+            payload = {"inspectLink": action_url}
+            proxy = await self.proxy_manager.get_proxy()
 
-                async with session.post(url, json=payload) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        screenshot_id = data.get('result').get('imageId')
-                        return f'https://s.swap.gg/{screenshot_id}.jpg'
-                    else:
-                        logging.error(f"Failed to generate screenshot for {action_url}: {response.status}")
+            for attempt in range(3):
+                async with self.session.post(url, json=payload, proxy=proxy) as response:
+                    try:
+                        if response.status == 200:
+                            data = await response.json()
+                            if data.get('state', '') == 'IN_QUEUE':
+                                await asyncio.sleep(5)
+                                continue
+                            screenshot_id = data.get('result').get('imageId')
+                            await self.proxy_manager.schedule_release(proxy, 1)
+                            return f'https://s.swap.gg/{screenshot_id}.jpg'
+                        else:
+                            logging.error(f"Failed to generate screenshot for {action_url}: {response.status}")
+                            await self.proxy_manager.schedule_release(proxy, 1)
+                            return None
+                    except Exception as e:
+                        await self.proxy_manager.schedule_release(proxy, 1)
+
+            await self.proxy_manager.schedule_release(proxy, 1)
+
 

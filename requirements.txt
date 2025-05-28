@@ -4,4 +4,3 @@ fastapi
 uvicorn
 requests
 python-dotenv
-requests-ip-rotator
