@@ -44,6 +44,7 @@ class StickersParser(Parser):
             logging.info("Parsing sticker: " + title)
             price = self.db.get_sticker_price(title)
 
+            # Fetch the price of sticker if it is not in the database
             if price is None:
                 price = await self.get_sticker_price(stickers.get_sticker_url(title))
                 logging.info("Adding sticker: " + title + " to database.")
@@ -52,6 +53,7 @@ class StickersParser(Parser):
             if price == -1:
                 continue
 
+            # Format the sticker text
             stickers_text += str(i + 1) + ". "  + title + " - " + str(round(price, 2)) + "$\n"
 
             # Check if the sticker is identical

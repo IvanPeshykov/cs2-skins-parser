@@ -58,6 +58,7 @@ class Parser(ABC):
         else:
             return await self.fetch_no_proxy(url)
 
+    # Fetches the content of a URL using a proxy
     async def fetch_proxy(self, url, cooldown):
         proxy = await self.proxy_manager.get_proxy()
         async with self.session.get(url, proxy=proxy) as response:
@@ -73,6 +74,7 @@ class Parser(ABC):
                     logging.error(f"Failed to fetch {url}: {response.status}")
                 return None
 
+    # Just fetches the content of a URL without using a proxy
     async def fetch_no_proxy(self, url):
         async with self.session.get(url) as response:
             if response.status == 200:

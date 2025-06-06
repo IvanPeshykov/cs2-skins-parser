@@ -1,5 +1,6 @@
 import asyncio
 
+# Class for managing proxies in an asynchronous environment
 class ProxyManager:
     def __init__(self, proxies):
         self.available = asyncio.Queue()

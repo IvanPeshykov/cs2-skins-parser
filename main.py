@@ -9,16 +9,18 @@ import uvicorn
 import random
 from misc import telegram_bot
 
-app = FastAPI()
 
 def load_proxies():
     with open("data/proxies.txt") as f:
         proxies = f.read().splitlines()
         return proxies
 
+app = FastAPI()
 proxy_manager = ProxyManager(load_proxies())
 parser = SteamParser(proxy_manager)
 
+
+# Start listening for incoming messages from bot
 async def start_uvicorn():
     config = uvicorn.Config(app, host="0.0.0.0", port=8001, log_level="info")
     server = uvicorn.Server(config)
@@ -36,31 +38,7 @@ async def resume_parser():
     parser.pause = False
     logging.info("Parser resumed.")
 
-def setup_logging():
-    logname = 'parser.log'
-
-    # Create logger
-    logger = logging.getLogger('parser')
-    logger.setLevel(logging.DEBUG)
-
-    # Formatter
-    formatter = logging.Formatter('%(levelname)s | %(asctime)s | %(message)s',
-                                  datefmt='%Y-%m-%d %H:%M:%S')
-
-    # File handler
-    file_handler = logging.FileHandler(logname, mode='a')
-    file_handler.setFormatter(formatter)
-
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-
-    # Add handlers if not already added
-    if not logger.handlers:
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-
-
+# Pauser function to randomly pause the parser
 async def random_pauser():
 
     first_launch = True
@@ -89,6 +67,7 @@ async def main():
     if os.path.isfile('debug.log'):
         os.remove('debug.log')
 
+    # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(levelname)s | %(asctime)s | %(message)s",
@@ -99,20 +78,16 @@ async def main():
         ]
     )
 
+    # Update currency JSON file
     SteamCurrencyExchanger.updateCurrencyJSONFile()
 
     logging.info("Starting the parser...")
-    # Start the parsing process
+    # Start pauser, parser and tg bot listener
     await asyncio.gather(
         start_uvicorn(),
         parser.parse(),
         random_pauser()
     )
-
-# TODO:
-
-# Add fast buy button
-# - Different pages check
 
 if __name__ == "__main__":
     asyncio.run(main())

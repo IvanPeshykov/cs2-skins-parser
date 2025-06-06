@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 
+# Class for storing and managing sticker prices in a SQLite database
 
 class StickersDB:
 

@@ -23,16 +23,18 @@ class SteamParser(Parser,):
             self.sent_messages = set()
 
         async def parse(self):
+            # Init db with stickers
             self.db = stickers_db.StickersDB()
-
             queue = asyncio.Queue()
 
             async with aiohttp.ClientSession() as session:
                 self.session = session
 
+                # Add all skins to the queue
                 for skin in skins.get_all_names():
                     await queue.put(skin)
 
+                # Pull skins from the queue and parse them
                 async def worker():
                     while True:
                         if self.pause:
@@ -55,14 +57,20 @@ class SteamParser(Parser,):
         async def parse_url(self, url, skin_name):
             try:
                 logging.info("Parsing URL: " + url)
+                # Fetch item HTML
                 html = await self.fetch(url, random.randint(config.SKIN_SLEEP_TIME_MIN, config.SKIN_SLEEP_TIME_MAX))
+                # Get rg_assets
                 items = skins.get_assets(html)
                 if items == -1:
                     await self.write_wrong_skin(skin_name)
                     return
 
                 autobuy_price = self.get_item_autobuy_price(html)
+
+                # Amount of recent sales for this skin
                 skin_sell_amount = self.get_item_sell_amount(html)
+
+                # Add skin to wrong.txt if it doesn't meet the criteria
                 if autobuy_price < config.MIN_PRICE or autobuy_price > config.MAX_PRICE or skin_sell_amount <= config.MIN_SELL_AMOUNT:
                     await self.write_wrong_skin(skin_name)
 
@@ -75,6 +83,7 @@ class SteamParser(Parser,):
                     if skin_price  == -1:
                         continue
 
+                    # Check if skin has stickers
                     if not StickersParser.is_valid(skin_item):
                         continue
 
@@ -111,6 +120,9 @@ class SteamParser(Parser,):
                 with open("data/wrong.txt", "a") as f:
                     f.write(f"{skin_name}\n")
 
+
+
+        # Function for generating screenshot of the skin using swap.gg api, sometimes it works, sometimes it doesn't.
         async def generate_screenshot(self, action_url):
             url = 'https://api.swap.gg/v2/screenshot'
             payload = {"inspectLink": action_url}

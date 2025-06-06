@@ -1,9 +1,9 @@
-# Helper file to remove unwanted skins from the skins list
+# Helper file to remove unwanted skins from the skins list. Just launch it directly if you want to filter skins.
+
 import json
 import os.path
 
-#TODO : Remove cheap skins
-
+# Remove unwanted items
 def is_valid(skin_name: str) -> bool:
     if (
             skin_name.startswith('Sticker') or
@@ -62,11 +62,11 @@ def is_valid(skin_name: str) -> bool:
 
     return True
 
+# You can get the marketplaceids.json file from https://github.com/ModestSerhat/cs2-marketplace-ids.
 with open('../data/marketplaceids.json', 'r', encoding="utf8") as f:
     names = json.load(f)
 
 initItems = len(names['items'].keys())
-
 unvalid_skins = {}
 
 if os.path.isfile("../data/wrong.txt"):
@@ -80,6 +80,5 @@ for name in list(names['items'].keys()):
 
 with open('../data/marketplaceids.json', 'w', encoding="utf8") as f:
     json.dump(names, f, indent=4)
-
 
 print("Removed " + str(initItems - len(names['items'].keys())) + " skins from the list")

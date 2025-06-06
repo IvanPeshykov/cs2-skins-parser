@@ -1,6 +1,7 @@
 import aiohttp
 import logging
 
+# Send message to Telegram bot, with or without an image.
 async def send_message(text, image_url=None):
     try:
         async with aiohttp.ClientSession() as session:
