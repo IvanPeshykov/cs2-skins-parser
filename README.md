@@ -142,7 +142,7 @@ Set your preferences like cooldown time, profit margin, etc. in `data/config.py`
 ### 5️⃣  Run via Docker Compose
 
 ```bash
-docker-compose --env-file telegram-bot/.env up --build -d
+docker compose up --build
 ```
 
 ---
